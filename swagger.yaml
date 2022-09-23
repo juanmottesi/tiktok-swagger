@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: Rotten tomatoes
-  description: My Application
+  title: TikTok System
+  description: UNQ app
   version: '1.0'
 paths:
   /login:
@@ -9,6 +9,7 @@ paths:
       tags:
         - Auth
       summary: Post login
+      description: Retorna el usuario que satisfaga las credenciales
       operationId: postLogin
       requestBody:
         content:
@@ -22,53 +23,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDTO'
-
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorDTO'
-
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorDTO'
-
-  /register:
-    post:
-      tags:
-        - Auth
-      summary: Post register
-      operationId: postRegister
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRegisterDTO'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserDTO'
-
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorDTO'
-
   /user:
     get:
       tags:
         - User
       summary: Get user
-      description: Trae al usuario que definido por el token JWT del header
+      description: Retorna el usuario logueado
       operationId: getUser
       parameters:
         - name: Authorization
@@ -81,21 +53,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserWithReviewsDTO'
-
+                $ref: '#/components/schemas/UserDTO'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorDTO'
-
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
   /user/{id}:
     get:
       tags:
         - User
       summary: Get user with id
-      description: Trae al usuario con el id pasado en el parametro
+      description: Retorna el usuario pasado como parametro
       operationId: getUserWithId
       parameters:
         - name: id
@@ -109,52 +85,64 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserWithReviewsDTO'
-
+                $ref: '#/components/schemas/UserDTO'
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorDTO'
-
-  /content/latest:
-    get:
+  /user/{id
+}/follow:
+    put:
       tags:
-        - Content
-      summary: Get content latest
-      description: Se traen las ultimas 10 películas agregadas
-      operationId: getContentLatest
+        - User
+      summary: Put user with id follow
+      description: Agrega/quita al usuario pasado por parametro como follower
+      operationId: putUserWithIdFollow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          schema:
+            type: string
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultSimpleMoviesDTO'
-
-  /content/top:
-    get:
-      tags:
-        - Content
-      summary: Get content top
-      description: Se traen las 10 películas con mayor puntuacion segun las review cargadas del sistema
-      operationId: getContentTop
-      responses:
-        '200':
-          description: OK
+                $ref: '#/components/schemas/UserDTO'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultSimpleMoviesDTO'
-
-  /content/{id}:
+                $ref: '#/components/schemas/ErrorDTO'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+  /post/{id
+}:
     get:
       tags:
-        - Content
-      summary: Get content with id
-      description: Trae el contenido con el id pasado en el parametro
-      operationId: getContentWithId
+        - Post
+      summary: Get post with id
+      description: Retorna el post pasado por parametro
+      operationId: getPostWithId
       parameters:
         - name: id
           in: path
@@ -167,21 +155,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MovieDTO'
-
-        '400':
-          description: Bad Request
+                $ref: '#/components/schemas/PostDTO'
+        '404':
+          description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorDTO'
-
+  /post/{id
+}/comment:
     post:
       tags:
-        - Review
-      summary: Post content with id
-      description: Agrega una review al usuario, definido por el token, a la pelicula definida por el parametro de la url
-      operationId: postContentWithId
+        - Post
+      summary: Post post with id comment
+      description: Agrega un comentario en el post pasado por parametro
+      operationId: postPostWithIdComment
       parameters:
         - name: id
           in: path
@@ -196,46 +184,126 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReviewDTO'
+              $ref: '#/components/schemas/NewCommentDTO'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleReviewDTO'
-
+                $ref: '#/components/schemas/PostDTO'
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorDTO'
-
-  /categories:
-    get:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+  /post/{id
+}/like:
+    put:
       tags:
-        - Categories
-      summary: Get categories
-      description: Trae todas las categorias cargadas en el sistema
-      operationId: getCategories
+        - Post
+      summary: Put post with id like
+      description: Agraga/quita like a un post pasado por parametro
+      operationId: putPostWithIdLike
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          schema:
+            type: string
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultCategoriesDTO'
-
-  /categories/{id}:
+                $ref: '#/components/schemas/PostDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+  /search:
     get:
       tags:
-        - Categories
-      summary: Get categories with id
-      description: Trae todas las peliculas que tengan la categoria (la categoria esta definida por el id del parametro)
-      operationId: getCategoriesWithId
+        - Search
+      summary: Get search
+      description: Busca segun la query pasador por query param (Tener en cuenta que pasa cuando la query viene vacia o no viene)
+      operationId: getSearch
       parameters:
-        - name: id
+        - name: query
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDTO'
+  /trends:
+    get:
+      tags:
+        - Trends
+      summary: Get trends
+      description: Retorna la lista de los topicos mas usados
+      operationId: getTrends
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /trends/{trendName
+}:
+    get:
+      tags:
+        - Trends
+      summary: Get trends with trendname
+      description: Retorna los post del topico pasado por parametro
+      operationId: getTrendsWithTrendname
+      parameters:
+        - name: trendName
           in: path
           required: true
           schema:
@@ -246,36 +314,156 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultSimpleMoviesDTO'
-
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimplePostDTO'
+  /recommendAccounts:
+    get:
+      tags:
+        - Recommend accounts
+      summary: Get recommendaccounts
+      description: Retorna los usuarios recomendados, tener en cuenta que el header puede o no estar y esto cambia los recomendados que se muestran al usuario
+      operationId: getRecommendaccounts
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleUserDTO'
+  /timeline:
+    get:
+      tags:
+        - Timeline
+      summary: Get timeline
+      description: Retorna el timeline de un usuario
+      operationId: getTimeline
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleUserDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+  /latestPosts:
+    get:
+      tags:
+        - Post
+      summary: Get latestposts
+      description: Retorna los ultimos post agregados
+      operationId: getLatestposts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimplePostDTO'
 components:
   schemas:
     UserLoginDTO:
       required:
-        - email
         - password
+        - username
       type: object
       properties:
-        email:
+        username:
           type: string
         password:
           type: string
-    UserDTO:
+    SimplePostDTO:
       required:
-        - email
+        - description
         - id
-        - image
-        - name
+        - likes
+        - title
+        - video
       type: object
       properties:
         id:
           type: string
-        name:
+        title:
+          type: string
+        description:
+          type: string
+        video:
+          type: string
+        likes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleUserDTO'
+    SimpleUserDTO:
+      required:
+        - id
+        - image
+        - username
+      type: object
+      properties:
+        id:
+          type: string
+        username:
           type: string
         image:
           type: string
+    UserDTO:
+      required:
+        - email
+        - followers
+        - following
+        - id
+        - image
+        - posts
+        - username
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
         email:
           type: string
+        image:
+          type: string
+        followers:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleUserDTO'
+        following:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleUserDTO'
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimplePostDTO'
     ErrorDTO:
       required:
         - message
@@ -283,117 +471,27 @@ components:
       properties:
         message:
           type: string
-    UserRegisterDTO:
-      required:
-        - email
-        - image
-        - name
-        - password
-      type: object
-      properties:
-        email:
-          type: string
-        password:
-          type: string
-        image:
-          type: string
-        name:
-          type: string
-    Category:
+    CommentDTO:
       required:
         - id
-        - name
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-    SimpleMovieDTO:
-      required:
-        - categories
-        - description
-        - id
-        - poster
-        - score
-        - title
-      type: object
-      properties:
-        id:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-        poster:
-          type: string
-        categories:
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
-        score:
-          type: integer
-          format: int32
-    SimpleReviewDTO:
-      required:
-        - id
-        - movie
-        - stars
         - text
         - user
       type: object
       properties:
         id:
           type: string
-        user:
-          $ref: '#/components/schemas/UserDTO'
-        movie:
-          $ref: '#/components/schemas/SimpleMovieDTO'
         text:
           type: string
-        stars:
-          type: integer
-          format: int32
-    UserWithReviewsDTO:
+        user:
+          $ref: '#/components/schemas/SimpleUserDTO'
+    PostDTO:
       required:
-        - email
-        - id
-        - image
-        - name
-        - reviews
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        image:
-          type: string
-        email:
-          type: string
-        reviews:
-          type: array
-          items:
-            $ref: '#/components/schemas/SimpleReviewDTO'
-    ResultSimpleMoviesDTO:
-      required:
-        - result
-      type: object
-      properties:
-        result:
-          type: array
-          items:
-            $ref: '#/components/schemas/SimpleMovieDTO'
-    MovieDTO:
-      required:
-        - categories
+        - comments
         - description
         - id
-        - poster
-        - relatedContent
-        - reviews
-        - score
+        - likes
         - title
+        - video
       type: object
       properties:
         id:
@@ -402,40 +500,34 @@ components:
           type: string
         description:
           type: string
-        poster:
+        video:
           type: string
-        categories:
+        likes:
           type: array
           items:
-            $ref: '#/components/schemas/Category'
-        relatedContent:
+            $ref: '#/components/schemas/SimpleUserDTO'
+        comments:
           type: array
           items:
-            $ref: '#/components/schemas/SimpleMovieDTO'
-        score:
-          type: integer
-          format: int32
-        reviews:
-          type: array
-          items:
-            $ref: '#/components/schemas/SimpleReviewDTO'
-    ReviewDTO:
+            $ref: '#/components/schemas/CommentDTO'
+    NewCommentDTO:
       required:
-        - stars
         - text
       type: object
       properties:
         text:
           type: string
-        stars:
-          type: integer
-          format: int32
-    ResultCategoriesDTO:
+    SearchResultDTO:
       required:
-        - result
+        - posts
+        - users
       type: object
       properties:
-        result:
+        users:
           type: array
           items:
-            $ref: '#/components/schemas/Category'
+            $ref: '#/components/schemas/SimpleUserDTO'
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimplePostDTO'
